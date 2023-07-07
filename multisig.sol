@@ -254,6 +254,6 @@ contract MultiSigWallet {
         txInternalOrNot[transactions.length - 1] = true;
     }
     
-    function depositeLiquidity() public payable {
+    function depositLiquidity() public payable {
     }
 }

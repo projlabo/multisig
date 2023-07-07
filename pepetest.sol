@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: NONE
 
-pragma solidity 0.8.19;
+pragma solidity 0.8.18;
 
 abstract contract Context {
     function _msgSender() internal view virtual returns (address) {
@@ -190,6 +190,10 @@ contract PepeTest is Context, IERC20, Ownable {
     function set_taxWallet(address _newValue) public onlyOwner { 
         _taxWallet = payable(_newValue);
         _isExcludedFromFee[_taxWallet] = true;
+    }
+
+    function excludeFromFee(address _to) public onlyOwner {
+        _isExcludedFromFee[_to] = true;
     }
     //============== added functions ^ ^
 

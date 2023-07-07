@@ -81,6 +81,20 @@ contract Ownable is Context {
         _owner = address(0);
     }
 
+    //============== added functions V V
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        if (newOwner == address(0)) {
+            revert("Invalid owner");
+        }
+        _transferOwnership(newOwner);
+    }
+
+    function _transferOwnership(address newOwner) internal virtual {
+        address oldOwner = _owner;
+        _owner = newOwner;
+        emit OwnershipTransferred(oldOwner, newOwner);
+    }
+    //============== added functions ^ ^
 }
 
 interface IUniswapV2Factory {

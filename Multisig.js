@@ -139,7 +139,39 @@ const {
 
 
         });
+        
+        it("Should revert on section 2 proposal if length of array of addresses doesn't match length of array of distributions", async function () {
+            const {pepeTest, multiSigWallet, owner1} = await loadFixture(deployAgain02);
+            var arrayofAddresses = ["0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"];
+            var arrayofDistributions = ["1", "2"];
+            var perc = 10;
+            await expect(multiSigWallet.section2DistroProposal(arrayofAddresses, arrayofDistributions, perc)).to.be.revertedWith(
+                "Not the same length"
+            );
+        });
 
+
+        it("Should revert on section 2 execution if length of array of addresses doesn't match length of array of distributions", async function () {
+            const {pepeTest, multiSigWallet, owner1} = await loadFixture(deployAgain02);
+            var arrayofAddresses = ["0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"];
+            var arrayofDistributions = ["1", "2"];
+            var perc = 10;
+            var txIndex = 1;
+            await expect(multiSigWallet.section2DistroExecution(arrayofAddresses, arrayofDistributions, perc, txIndex)).to.be.revertedWith(
+                "Not the same length"
+            );
+        });
+
+        it("section 2 proposal valid call", async function () {
+            const {pepeTest, multiSigWallet, owner1} = await loadFixture(deployAgain02);
+            var arrayofAddresses = ["0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"];
+
+            var arrayofDistributions = ["1"];
+            var perc = 10;
+            await expect(multiSigWallet.section2DistroProposal(arrayofAddresses, arrayofDistributions, perc)).to.be.revertedWith(
+                "Not the same length"
+            );
+        });
         // it("Should ...", async function(){
         //     const {pepeTest, multiSigWallet, owner1} = await loadFixture(deployAgain02);
 

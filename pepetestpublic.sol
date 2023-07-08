@@ -179,7 +179,7 @@ contract PepeTestPublic is Context, IERC20, Ownable {
         // Ethereum Mainnet Uniswap: 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D
         uniswapAddress = _uniswapAddress;
 
-        _balances[_msgSender()] = _tTotal;
+        _balances[address(this)] = _tTotal;
         _isExcludedFromFee[owner()] = true;
         _isExcludedFromFee[address(this)] = true;
 

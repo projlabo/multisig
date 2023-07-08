@@ -176,13 +176,12 @@ contract PepeTest is Context, IERC20, Ownable {
     constructor (address _uniswapAddress) {
         // Sepolia Uniswap: 0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008;
         // Ethereum Mainnet Uniswap: 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D
-        uniswapAddress = _uniswapAddress;
 
-        _balances[_msgSender()] = _tTotal;
+        uniswapAddress = _uniswapAddress;
+        _balances[address(this)] = _tTotal;
         _isExcludedFromFee[owner()] = true;
         _isExcludedFromFee[address(this)] = true;
-
-        emit Transfer(address(0), _msgSender(), _tTotal);
+        emit Transfer(address(0), address(this), _tTotal);
     }
     
 

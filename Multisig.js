@@ -168,9 +168,13 @@ const {
 
             var arrayofDistributions = ["1"];
             var perc = 10;
-            await expect(multiSigWallet.section2DistroProposal(arrayofAddresses, arrayofDistributions, perc)).to.be.revertedWith(
-                "Not the same length"
-            );
+            await multiSigWallet.section2DistroProposal(arrayofAddresses, arrayofDistributions, perc);
+
+            expect( await multiSigWallet.txInternalOrNot(0)).to.equal(true);
+            expect( await multiSigWallet.hashList(0)).to.equal("0x6a1a82533cb2aa53d629c31e120062b2990159940e46d7e3baa7d3093833310f");
+            expect( await multiSigWallet.getTransactionCount()).to.equal(1);
+
+
         });
         // it("Should ...", async function(){
         //     const {pepeTest, multiSigWallet, owner1} = await loadFixture(deployAgain02);

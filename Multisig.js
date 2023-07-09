@@ -176,6 +176,239 @@ const {
 
 
         });
+
+
+        it ("should do 4 full tasks (each including proposal, approvals, revokes, and execution)", async function() {
+            const {pepeTest, multiSigWallet, owner1, owner2, owner3, owner4, owner5, member01, member02, member03, member04} = await loadFixture(deployAgain02);
+            
+//=========================
+// threeWeekLockProposal(uint _txIndex)
+//=========================
+            await expect(multiSigWallet.transactions(0)).to.be.reverted; // no transactions here yet so should revert
+            await expect(multiSigWallet.connect(member01).threeWeekLockProposal()).to.be.reverted;//member01 is not an owner, so should revert
+            await expect(multiSigWallet.connect(owner1).threeWeekLockProposal()).to.not.be.reverted; // proposing to lock the contract for 3 weeks, should go through since it's an owner suggesting it
+            let proposal_0 = await multiSigWallet.transactions(0);//the proposal should now exist
+            console.log(`proposal_0: ${proposal_0}`);
+                //=========================
+                // approveProposal(uint _txIndex) and revokeApproval(uint _txIndex)
+                //=========================
+            expect(proposal_0[4]).to.equal(0);//since no one voted to approve the proposal yet
+            await expect(multiSigWallet.connect(member02).approveProposal(0)).to.be.reverted; //member02 is not an owner, shouldn't be able to approve anything
+            await expect(multiSigWallet.connect(owner2).approveProposal(0)).to.not.be.reverted; //member02 is not an owner, shouldn't be able to approve anything
+            proposal_0 = await multiSigWallet.transactions(0);
+            expect(proposal_0[4]).to.be.equal(1);// since 1 approval already took place
+            await expect(multiSigWallet.connect(owner2).revokeApproval(0)).to.not.be.reverted;
+            proposal_0 = await multiSigWallet.transactions(0)
+            expect(proposal_0[4]).to.be.equal(0);// since 0 you just revoked it
+            await expect (multiSigWallet.connect(owner1).approveProposal(0)).to.not.be.reverted;
+            await expect (multiSigWallet.connect(owner2).approveProposal(0)).to.not.be.reverted;
+            proposal_0 = await multiSigWallet.transactions(0)
+            expect(proposal_0[4]).to.be.equal(2);// since you just approved it by 2 people
+                //=========================
+                // executeExternalProposal(uint _txIndex)
+                //=========================
+            expect(await multiSigWallet.txInternalOrNot(0)).to.be.equal(false);
+            await expect (multiSigWallet.connect(owner1).executeExternalProposal(0)).to.be.revertedWith("cannot execute tx");//didn't execute because it needs at least 3 votes
+            await expect( multiSigWallet.connect(owner3).approveProposal(0)).to.not.be.reverted;
+            proposal_0 = await multiSigWallet.transactions(0)
+            expect(proposal_0[4]).to.be.equal(3);
+            let lockTimestampVar = await pepeTest.lockTimestamp();
+            // console.log(`lockTimestampVar: ${lockTimestampVar}, typeof: ${typeof(lockTimestampVar)}`);
+            await expect (multiSigWallet.connect(owner1).executeExternalProposal(0)).to.not.be.reverted;//so the other contract should be locked
+                //=========================
+                // confirming it executed properly in pepeTest
+                //=========================
+            lockTimestampVar = await pepeTest.lockTimestamp();
+            // console.log(`lockTimestampVar: ${lockTimestampVar}, typeof: ${typeof(lockTimestampVar)}`);
+            let blockNumber = await ethers.provider.getBlockNumber();
+            // console.log(`blockNumber: ${blockNumber}`);
+            let blockObject = await ethers.provider.getBlock(blockNumber);
+            let blockTimestamp =  await blockObject.timestamp;
+            // console.log(`blockTimestamp: ${blockTimestamp}`);
+            let approxTimestampLock = blockTimestamp + (21 * 24 * 60 * 60); //adding three weeks
+            // console.log(`approxTimestampLock: ${approxTimestampLock}`);
+            expect(Number(approxTimestampLock)).to.be.greaterThanOrEqual(lockTimestampVar);
+            expect(Number(lockTimestampVar) + 100).to.be.greaterThanOrEqual(approxTimestampLock);
+
+//=========================
+// permanentLiquidityLockProposal()
+//=========================
+            await expect(multiSigWallet.transactions(1)).to.be.reverted; // no transactions here yet so should revert
+            await expect(multiSigWallet.connect(member01).permanentLiquidityLockProposal()).to.be.reverted;//member01 is not an owner, so should revert
+            await expect(multiSigWallet.connect(owner4).permanentLiquidityLockProposal()).to.not.be.reverted; //should go through since it's an owner suggesting it
+            let proposal_1 = await multiSigWallet.transactions(1);//the proposal should now exist
+            console.log(`proposal_1: ${proposal_1}`);
+                //=========================
+                // approveProposal(uint _txIndex) and revokeApproval(uint _txIndex)
+                //=========================
+            expect(proposal_1[4]).to.equal(0);//since no one voted to approve the proposal yet
+            await expect(multiSigWallet.connect(member04).approveProposal(1)).to.be.reverted; //member02 is not an owner, shouldn't be able to approve anything
+            await expect(multiSigWallet.connect(owner5).approveProposal(1)).to.not.be.reverted; //member02 is not an owner, shouldn't be able to approve anything
+            proposal_1 = await multiSigWallet.transactions(1);
+            expect(proposal_1[4]).to.be.equal(1);// since 1 approval already took place
+            await expect(multiSigWallet.connect(owner1).revokeApproval(1)).to.be.reverted;// SINCE he never approved in the first place
+            await expect(multiSigWallet.connect(owner5).revokeApproval(1)).to.not.be.reverted;
+            proposal_1 = await multiSigWallet.transactions(1)
+            expect(proposal_1[4]).to.be.equal(0);// since 0 you just revoked it
+            await expect (multiSigWallet.connect(owner4).approveProposal(1)).to.not.be.reverted;
+            await expect (multiSigWallet.connect(owner5).approveProposal(1)).to.not.be.reverted;
+            proposal_1 = await multiSigWallet.transactions(1)
+            expect(proposal_1[4]).to.be.equal(2);// since you just approved it by 2 people
+                //=========================
+                // executeExternalProposal(uint _txIndex)
+                //=========================
+            expect(await multiSigWallet.txInternalOrNot(1)).to.be.equal(false);
+            await expect (multiSigWallet.connect(member01).executeExternalProposal(1)).to.be.revertedWith("not owner");
+            await expect (multiSigWallet.connect(owner5).executeExternalProposal(1)).to.be.revertedWith("cannot execute tx");//didn't execute because it needs at least 3 votes
+            await expect( multiSigWallet.connect(owner1).approveProposal(1)).to.not.be.reverted;
+            await expect( multiSigWallet.connect(owner2).approveProposal(1)).to.not.be.reverted;
+            proposal_1 = await multiSigWallet.transactions(1)
+            expect(proposal_1[4]).to.be.equal(4);
+            let lockedVariableBefore = await pepeTest.locked();
+            console.log(`lockedVariableBefore: ${lockedVariableBefore}, typeof: ${typeof(lockedVariableBefore)}`);
+            await expect (multiSigWallet.connect(owner5).executeExternalProposal(1)).to.not.be.reverted;//so the other contract should be locked
+                //=========================
+                // confirming it executed properly in pepeTest
+                //=========================
+            let lockedVariableAfter = await pepeTest.locked();
+            console.log(`lockedVariableAfter: ${lockedVariableAfter}, typeof: ${typeof(lockedVariableAfter)}`);
+            expect(lockedVariableBefore).to.be.equal(false);
+            expect(lockedVariableAfter).to.be.equal(true);
+
+            //     //voting on returning liquidity, just to see the failure
+            // await multiSigWallet.connect(owner1).returnLiquidityProposal();
+            // await multiSigWallet.connect(owner1).approveProposal(2);
+            // await multiSigWallet.connect(owner2).approveProposal(2);
+            // await multiSigWallet.connect(owner3).approveProposal(2);
+            // await expect( multiSigWallet.connect(owner1).executeExternalProposal(2)).to.be.revertedWith("Liquidity locked");
+
+    //=========================
+    // section1DistroProposal (address _llDistributionContract, uint _percentage)
+    //=========================
+                //=========================
+                //Adding funds to be distributed
+                //=========================
+            let oneEth = ethers.parseEther("1"); //getting the bignumber version of 1 Eth
+            let halfEth = ethers.parseEther("0.5"); //getting the bignumber version of 1 Eth
+            await owner1.sendTransaction({to: multiSigWallet.target, value: oneEth});
+            let multisigBalance = await ethers.provider.getBalance(multiSigWallet.target);
+            console.log(`multisigBalance: ${multisigBalance}`);
+
+            await expect(multiSigWallet.connect(member01).section1DistroProposal(owner3.address, 50)).to.be.revertedWith("not owner");
+            await multiSigWallet.connect(owner1).section1DistroProposal(owner3.address, 50);
+            let proposal_2 = await multiSigWallet.transactions(2);
+            expect(proposal_2[4]).to.equal(0); // console.log(`proposal_2[4]: ${proposal_2[4]}`);
+                //=========================
+                // approveProposal(uint _txIndex) and revokeApproval(uint _txIndex)
+                //=========================
+            await expect(multiSigWallet.connect(owner5).approveProposal(2)).to.not.be.reverted;
+            await expect(multiSigWallet.connect(owner4).approveProposal(2)).to.not.be.reverted;
+            await expect(multiSigWallet.connect(owner1).section1DistroExecution(owner3.address, 50, 2)).to.be.revertedWith("Not enough confirmations");
+            await expect(multiSigWallet.connect(owner3).approveProposal(2)).to.not.be.reverted;
+            await expect(multiSigWallet.connect(owner2).approveProposal(2)).to.not.be.reverted;
+            await expect(multiSigWallet.connect(owner1).approveProposal(2)).to.not.be.reverted;
+            proposal_2 = await multiSigWallet.transactions(2);
+            expect(proposal_2[4]).to.equal(5); // console.log(`proposal_2[4]: ${proposal_2[4]}`);
+            await expect(multiSigWallet.connect(owner1).revokeApproval(2)).to.not.be.reverted;// SINCE he never approved in the first place
+            proposal_2 = await multiSigWallet.transactions(2);
+            expect(proposal_2[4]).to.equal(4);
+            console.log(`proposal_2[4]: ${proposal_2[4]}`);
+                //=========================
+                // executeExternalProposal(uint _txIndex)
+                //=========================
+                // output the hash?
+            let hashVar = await multiSigWallet.hashList(2);// array or variable in parenthesis?
+            console.log(`hashVar: ${hashVar}`);
+                // trying to execute it with a different set of variables
+            await expect(multiSigWallet.connect(owner1).section1DistroExecution(owner4.address, 50, 2)).to.be.revertedWith("Not the same hash");
+                //using this later for the confirming phase
+                let owner3BalanceBefore = await ethers.provider.getBalance(owner3.address); //getting it for a later comparison
+                console.log(`owner3BalanceBefore: ${owner3BalanceBefore}`);
+            await expect(multiSigWallet.connect(owner1).section1DistroExecution(owner3.address, 50, 2)).to.not.be.reverted;
+                //=========================
+                // confirming it executed properly
+                //=========================
+            let owner3BalanceAfter = await ethers.provider.getBalance(owner3.address);
+            console.log(`owner3BalanceAfter: ${owner3BalanceAfter}`);
+            expect(owner3BalanceAfter).to.equal(owner3BalanceBefore + halfEth);
+            let contractBal = await ethers.provider.getBalance(multiSigWallet.target);
+            expect(contractBal).to.equal(halfEth); //0.5 Eth are still in the contract to be distributed, nice. Thats to be expected since you chose 50 percent in the variables
+            
+    //=========================
+    // section2DistroProposal(address[] memory _arrayOfAddresses, uint[] memory _distribution, uint _percentage)
+    //=========================
+                
+            let _arrayOfAddresses = [owner1.address, owner2.address, owner3.address, owner4.address, owner5.address, member01.address, member02.address];
+            await expect(multiSigWallet.connect(member02).section2DistroProposal(_arrayOfAddresses, [1,2,1,2,1,3,1],100)).to.be.revertedWith("not owner");
+            await expect(multiSigWallet.connect(owner4).section2DistroProposal(_arrayOfAddresses, [1,2,1,2,1,3,1],100)).to.not.be.reverted;
+            let proposal_3 = await multiSigWallet.transactions(3);
+            expect(proposal_3[4]).to.equal(0);//no approvals yet
+            await expect(multiSigWallet.transactions(4)).to.be.reverted;
+                //=========================
+                // approveProposal(uint _txIndex) and revokeApproval(uint _txIndex)
+                //=========================
+            await expect(multiSigWallet.connect(member02).approveProposal(3)).to.be.revertedWith("not owner");
+            await expect(multiSigWallet.connect(member02).revokeApproval(3)).to.be.revertedWith("not owner");
+            await expect(multiSigWallet.connect(owner5).approveProposal(3)).to.not.be.reverted;
+            await expect(multiSigWallet.connect(owner4).approveProposal(3)).to.not.be.reverted;
+            proposal_3 = await multiSigWallet.transactions(3);
+            expect(proposal_3[4]).to.equal(2);
+            await expect(multiSigWallet.connect(owner1).section2DistroExecution(_arrayOfAddresses, [1,2,1,2,1,3,1],100,3)).to.be.revertedWith("Not enough confirmations");
+            await expect(multiSigWallet.connect(owner3).approveProposal(3)).to.not.be.reverted;
+            await expect(multiSigWallet.connect(owner2).approveProposal(3)).to.not.be.reverted;
+            await expect(multiSigWallet.connect(owner1).approveProposal(3)).to.not.be.reverted;
+            proposal_3 = await multiSigWallet.transactions(3);
+            expect(proposal_3[4]).to.equal(5);
+                //=========================
+                // executeExternalProposal(uint _txIndex)
+                //=========================
+            let _arrayOfAddressesFake = [owner1.address, owner2.address, owner3.address, owner4.address, owner5.address, member01.address, member03.address];
+            await expect(multiSigWallet.connect(owner1).section2DistroExecution(_arrayOfAddressesFake, [1,2,1,2,1,3,1],100,3)).to.be.revertedWith("Not the same hash");
+            await expect(multiSigWallet.connect(owner1).section2DistroExecution(_arrayOfAddresses, [3,2,1,2,1,3,1],100,3)).to.be.revertedWith("Not the same hash");
+            await expect(multiSigWallet.connect(owner1).section2DistroExecution(_arrayOfAddresses, [1,2,1,2,1,3,1],101,3)).to.be.revertedWith("Not the same hash");
+            await expect(multiSigWallet.connect(owner1).section2DistroExecution(_arrayOfAddresses, [1,2,1,2,1,3,1],100,4)).to.be.revertedWith("Not the same hash");
+                //getting all the balances before the distribution is done, so I can confirm after the distribution that each one has been given what they were meant to be given
+                let balanceArrayBefore = [];
+                let balanceArrayAfter = [];
+                let tempbuffer;
+                for (let i=0; i<_arrayOfAddresses.length; i++){
+                    tempbuffer = await ethers.provider.getBalance(_arrayOfAddresses[i]);
+                    balanceArrayBefore.push(Number(tempbuffer));
+                }          
+                // console.log(`balanceArrayBefore: ${JSON.stringify(balanceArrayBefore, null, 2)}`);  
+            await expect(multiSigWallet.connect(owner1).section2DistroExecution(_arrayOfAddresses, [1,2,1,2,1,3,1],100,3)).to.not.be.reverted;
+                //=========================
+                // confirming it executed properly
+                //=========================
+            let distributionArray = [1,2,1,2,1,3,1];
+            let denominator = 0;
+            distributionArray.forEach((x)=>{denominator+=x});
+            console.log(`denominator: ${denominator}`)
+            let addedFundsArray = [];
+            for (let i=0; i<distributionArray.length; i++) {
+                tempbuffer = (Number(contractBal) * distributionArray[i])/denominator;
+                addedFundsArray.push(tempbuffer);
+            }
+            console.log(JSON.stringify(addedFundsArray, null, 2));
+            console.log(`balanceArrayBefore.length:${balanceArrayBefore.length}`)
+            for (let i=0; i<balanceArrayBefore.length; i++) {
+                tempbuffer = balanceArrayBefore[i]+addedFundsArray[i];
+                balanceArrayAfter.push(tempbuffer);
+            };
+            console.log(`balanceArrayAfter.length:${balanceArrayAfter.length}`)
+            for (let i=0; i<balanceArrayAfter.length; i++) {
+                tempbuffer = await ethers.provider.getBalance(_arrayOfAddresses[i]);
+                tempbuffer = Number(tempbuffer);
+                console.log(tempbuffer);
+                console.log(balanceArrayAfter[i]);
+                console.log(`===================`);
+                let a = Math.floor((tempbuffer/1000000000000000));
+                let b = Math.floor((balanceArrayAfter[i]/1000000000000000));
+                console.log(`a: ${a}, b: ${b}`);
+                expect(a).to.equal(b);
+            }
+        });
+        
         // it("Should ...", async function(){
         //     const {pepeTest, multiSigWallet, owner1} = await loadFixture(deployAgain02);
 

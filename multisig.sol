@@ -140,7 +140,7 @@ contract MultiSigWallet {
 
     //================= added functions:
 
-    bool[] public txInternalOrNot;
+    mapping (uint => bool) public txInternalOrNot;
     
     function injectLiquidityProposal() public onlyOwner {
         internalSubmission(address(this).balance, abi.encodeWithSignature("gottagofast()"));

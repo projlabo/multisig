@@ -12,7 +12,7 @@ const {
       const THREE_WEEKS_IN_SECONDS = 21 * 24 * 60 * 60;
       const unlockTime = (await time.latest()) + THREE_WEEKS_IN_SECONDS;
   
-      const [owner1, owner2, owner3, owner4, owner5, member01, member02, member03] = await ethers.getSigners();
+      const [owner1, owner2, owner3, owner4, owner5, member01, member02, member03, member04] = await ethers.getSigners();
       const ownerArray = [owner1.address,owner2.address,owner3.address,owner4.address,owner5.address];
       const uniswapMainnetAddress = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
   
@@ -30,7 +30,7 @@ const {
         const THREE_WEEKS_IN_SECONDS = 21 * 24 * 60 * 60;
         const unlockTime = (await time.latest()) + THREE_WEEKS_IN_SECONDS;
     
-        const [owner1, owner2, owner3, owner4, owner5, member01, member02, member03] = await ethers.getSigners();
+        const [owner1, owner2, owner3, owner4, owner5, member01, member02, member03, member04] = await ethers.getSigners();
         const ownerArray = [owner1.address,owner2.address,owner3.address,owner4.address,owner5.address];
         // const signerArray = [owner1, owner2, owner3, owner4, owner5, member01, member02, member03];
         const uniswapMainnetAddress = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
@@ -46,7 +46,7 @@ const {
         await pepeTest.excludeFromFee(multiSigWallet.target);
         await pepeTest.transferOwnership(multiSigWallet.target);
   
-         return { pepeTest, multiSigWallet, ownerArray, owner1, owner2, owner3, owner4, owner5, member01, member02, member03 };
+         return { pepeTest, multiSigWallet, ownerArray, owner1, owner2, owner3, owner4, owner5, member01, member02, member03, member04 };
       }
 
     describe("Deployment", function() {

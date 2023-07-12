@@ -408,6 +408,61 @@ const {
                 expect(a).to.equal(b);
             }
         });
+
+        it("Should be able to change (via submitProposal(...)) the buy and sell fee amount", async function(){
+            const {pepeTest, multiSigWallet, owner1, owner2, owner3, owner4, owner5, member01, member02, member03, member04} = await loadFixture(deployAgain02);
+            
+            //fee's should start with 0% buy and 2% sell
+            let _initialBuyTax = Number(await pepeTest._initialBuyTax());
+            console.log(`_initialBuyTax: ${_initialBuyTax}`);
+            expect(_initialBuyTax).to.equal(0);
+            let _initialSellTax = Number(await pepeTest._initialSellTax());
+            console.log(`_initialSellTax: ${_initialSellTax}`);
+            expect(_initialSellTax).to.equal(2);
+
+            // CHANGING BUY TAX TO 5%
+            await expect(multiSigWallet.connect(member01).submitProposal(pepeTest.target, 0, "0xa45d091d0000000000000000000000000000000000000000000000000000000000000005")).to.be.revertedWith("not owner");
+            await expect(multiSigWallet.connect(owner1).submitProposal(pepeTest.target, 0, "0xa45d091d0000000000000000000000000000000000000000000000000000000000000005")).to.not.be.reverted;
+            // await multiSigWallet.connect(owner1).submitProposal(pepeTest.target, 0, "0xa45d091d0000000000000000000000000000000000000000000000000000000000000005");
+            await multiSigWallet.connect(owner1).approveProposal(0);
+            await multiSigWallet.connect(owner2).approveProposal(0);
+            await multiSigWallet.connect(owner3).approveProposal(0);
+            await expect(multiSigWallet.connect(owner1).executeExternalProposal(0)).to.not.be.reverted;
+            // await multiSigWallet.connect(owner1).executeExternalProposal(0);
+            
+            // SHOWING / CONFIRMING RESULTS:
+            _initialBuyTax = Number(await pepeTest._initialBuyTax());
+            expect(_initialBuyTax).to.equal(5);
+            console.log(`_initialBuyTax: ${_initialBuyTax}`);
+
+            // CHANGING SELL TAX TO 9%
+            await multiSigWallet.submitProposal(pepeTest.target, 0, "0x03edee0e0000000000000000000000000000000000000000000000000000000000000009");
+            await multiSigWallet.connect(owner1).approveProposal(1);
+            await multiSigWallet.connect(owner2).approveProposal(1);
+            await multiSigWallet.connect(owner3).approveProposal(1);
+            await multiSigWallet.connect(owner1).executeExternalProposal(1);
+
+            // SHOWING / CONFIRMING RESULTS:
+            _initialSellTax = Number(await pepeTest._initialSellTax());
+            expect(_initialSellTax).to.equal(9);
+            console.log(`_initialSellTax: ${_initialSellTax}`);
+
+            // CHANGING BUY TAX TO 8%
+            await expect(multiSigWallet.connect(member01).submitProposal(pepeTest.target, 0, "0xa45d091d0000000000000000000000000000000000000000000000000000000000000008")).to.be.revertedWith("not owner");
+            await expect(multiSigWallet.connect(owner1).submitProposal(pepeTest.target, 0, "0xa45d091d0000000000000000000000000000000000000000000000000000000000000008")).to.not.be.reverted;
+            // await multiSigWallet.connect(owner1).submitProposal(pepeTest.target, 0, "0xa45d091d0000000000000000000000000000000000000000000000000000000000000005");
+            await multiSigWallet.connect(owner1).approveProposal(2);
+            await multiSigWallet.connect(owner2).approveProposal(2);
+            await multiSigWallet.connect(owner3).approveProposal(2);
+            await expect(multiSigWallet.connect(owner1).executeExternalProposal(2)).to.not.be.reverted;
+            // await multiSigWallet.connect(owner1).executeExternalProposal(0);
+            
+            // SHOWING / CONFIRMING RESULTS:
+            _initialBuyTax = Number(await pepeTest._initialBuyTax());
+            expect(_initialBuyTax).to.equal(8);
+            console.log(`_initialBuyTax: ${_initialBuyTax}`);
+            
+        });
         
         // it("Should ...", async function(){
         //     const {pepeTest, multiSigWallet, owner1} = await loadFixture(deployAgain02);

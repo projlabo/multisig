@@ -17,7 +17,7 @@ This is the step by step process that needs to be followed in order for the two 
 
 5) Modify the taxwallet address in the pepetest.sol contract with the multisig's address (the multisig will then become the wallet taxes go to)
 
-6) Use `the excludeFromFee()` function in pepetest.sol to excluse the multisig's address from Fees.
+6) Use the `excludeFromFee()` function in pepetest.sol to excluse the multisig's address from Fees.
 
 7) Transfer ownership in the pepetest.sol contract over to the multisig address
 

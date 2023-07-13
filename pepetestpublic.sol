@@ -138,7 +138,6 @@ contract PepeTestPublic is Context, IERC20, Ownable {
 
     mapping (address => bool) public _isExcludedFromFee;
     mapping (address => bool) public bots;
-    mapping(address => uint256) public _holderLastTransferTimestamp;
     address payable public _taxWallet;
 
     uint256 public _initialBuyTax=0;

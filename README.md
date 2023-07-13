@@ -3,11 +3,15 @@
 This is the step by step process that needs to be followed in order for the two contracts to work properly together:
 
 1) Deploy the pepetest.sol file on Ethereum
+
   A) The Constructor requires that you include the Uniswap V2 Rounter address (_uniswapAddress):
+
         // Sepolia Uniswap: 0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008;
         // Ethereum Mainnet Uniswap: 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D
+
   B) Remember to modify the 3 values of the contract to fit the desired name of the token:
-        134: contract `PepeTestPublic` is Context, IERC20, Ownable {
+  
+	134: contract `PepeTestPublic` is Context, IERC20, Ownable {
         153: string private constant _name = unicode"PepeTest";
         154: string private constant _symbol = unicode"PT";
 

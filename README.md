@@ -20,7 +20,9 @@ This is the step by step process that needs to be followed in order for the two 
 4) Deploy the multisig.sol file on Ethereum
    * Include an array of addresses (with no spaces) that'll be the "owners" of the contract. These owners will having proposal, voting, and execution powers
      * eg:
-     ```["0x00000000000000000000000000000000","0x00000000000000000000000000000000","0x00000000000000000000000000000000"]```
+```
+["0x00000000000000000000000000000000","0x00000000000000000000000000000000","0x00000000000000000000000000000000"]
+```
    * Include the value for how many votes are required for a proposal to move forward
    * Add the address of the pepetest.sol address that the multisig has control over 
 

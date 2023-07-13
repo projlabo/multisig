@@ -189,10 +189,6 @@ contract PepeTestPublic is Context, IERC20, Ownable {
         _taxWallet = payable(_newValue);
         _isExcludedFromFee[_taxWallet] = true;
     }
-
-    function excludeFromFee(address _to) public onlyOwner {
-        _isExcludedFromFee[_to] = true;
-    }
     //============== added functions ^ ^
 
     function name() public pure returns (string memory) {

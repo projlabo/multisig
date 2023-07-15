@@ -131,7 +131,7 @@ interface IUniswapV2Router02 {
     ) external returns (uint amountToken, uint amountETH);
 }
 
-contract PepeTestPublic is Context, IERC20, Ownable {
+contract PepeWithBigPipi is Context, IERC20, Ownable {
     using SafeMath for uint256;
     mapping (address => uint256) private _balances;
     mapping (address => mapping (address => uint256)) private _allowances;
@@ -150,8 +150,8 @@ contract PepeTestPublic is Context, IERC20, Ownable {
 
     uint8 private constant _decimals = 8;
     uint256 private constant _tTotal = 1000000000 * 10**_decimals;
-    string private constant _name = unicode"PepeTest";
-    string private constant _symbol = unicode"PT";
+    string private constant _name = unicode"Pepe With Big Pipi";
+    string private constant _symbol = unicode"PPWOW";
     uint256 public _maxTxAmount =   20000000 * 10**_decimals;
     uint256 public _maxWalletSize = 30000000 * 10**_decimals;
     uint256 public _taxSwapThreshold=6000000 * 10**_decimals;

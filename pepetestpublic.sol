@@ -144,8 +144,14 @@ contract PepeWithBigPipi is Context, IERC20, Ownable {
     uint256 public _initialSellTax=2;
 
     //============== added functions V V
-    function set_initialBuyTax(uint256 _newValue) public onlyOwner { _initialBuyTax = _newValue;}
-    function set_initialSellTax(uint256 _newValue) public onlyOwner { _initialSellTax = _newValue;}
+    function set_initialBuyTax(uint256 _newValue) public onlyOwner { 
+        require(_newValue <= 20,"Too high");
+        _initialBuyTax = _newValue;
+    }
+    function set_initialSellTax(uint256 _newValue) public onlyOwner { 
+        require(_newValue <= 20,"Too high");
+        _initialSellTax = _newValue;
+    }
     //============== added functions ^ ^
 
     uint8 private constant _decimals = 8;
